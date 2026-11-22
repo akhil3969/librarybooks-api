@@ -1,0 +1,15 @@
+# Required by the assignment. Local PostgreSQL can continue using port 5432.
+# To use this container, set DATABASE_PORT=5433 in .env before starting the API.
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-library_user}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env}
+      POSTGRES_DB: ${DATABASE_NAME:-library}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - library_postgres:/var/lib/postgresql
+volumes:
+  library_postgres:

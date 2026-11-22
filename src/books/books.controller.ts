@@ -15,10 +15,10 @@ import {
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { LibrarianGuard } from '../guards/librarian.guard';
-import { DuplicateBookFilter } from '../filters/duplicate-book.filter';
-import { TitleFormatPipe } from '../pipes/title-format.pipe';
-import { PublishedYearValidationPipe } from '../pipes/published-year-validation.pipe';
+import { LibrarianGuard } from '../common/guards/librarian.guard';
+import { DuplicateBookFilter } from '../common/filters/duplicate-book.filter';
+import { TitleFormatPipe } from '../common/pipes/title-format.pipe';
+import { PublishedYearValidationPipe } from '../common/pipes/published-year-validation.pipe';
 import { ResponseEnvelopeInterceptor } from '../common/interceptors/response-envelope.interceptor';
 const validateBody = new ValidationPipe({
   whitelist: true,

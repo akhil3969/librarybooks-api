@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map } from 'rxjs';
-import type { RequestWithId } from '../../middleware/request-id.middleware';
+import type { RequestWithId } from '../middleware/request-id.middleware';
 @Injectable()
 export class ResponseEnvelopeInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
