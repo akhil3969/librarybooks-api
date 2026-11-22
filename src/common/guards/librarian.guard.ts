@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  
 } from '@nestjs/common';
 import type { Request } from 'express';
 @Injectable()
@@ -11,6 +12,7 @@ export class LibrarianGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     if (request.headers['x-role'] !== 'librarian') {
       throw new ForbiddenException('Only librarians can modify books');
+      
     }
     return true;
   }
