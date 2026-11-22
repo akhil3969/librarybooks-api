@@ -1,126 +1,212 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Library Books API - Project 2
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A complete NestJS classroom API built from the Library assignment. It uses PostgreSQL and TypeORM, following the controller/service/module approach in the [students reference](https://github.com/akhil3969/nest-students). The reference contains unresolved merge markers in its controller; this project implements the library requirements independently.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 1. Open the project
 
-## Description
+Open this folder in VS Code, then choose Terminal > New Terminal. Run all commands below from this folder. You already have a Nest project: do not generate another one.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Prerequisites: Node.js 22.12 or newer (Node 24 LTS recommended), npm, a running local PostgreSQL server, and Git. Check `node -v`, `npm -v`, and `git --version`. If Git asks for Apple developer tools, run `xcode-select --install` and finish the installer.
 
-## Project setup
+## 2. Install dependencies
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+The existing dependencies supply Nest, DTO validation, configuration, PostgreSQL, and TypeORM. No extra application library was needed.
+
+## 3. Configure the database
+
+Copy the example configuration once, if you do not already have a .env file:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp -n .env.example .env
 ```
 
-## Run tests
+Check your existing .env against [.env.example](./.env.example). Use your local PostgreSQL credentials:
+
+```dotenv
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_PASSWORD=your_local_postgres_password
+DATABASE_NAME=library
+DATABASE_SYNCHRONIZE=true
+```
+
+The port and username above are common defaults; replace them with your actual local settings. Preserve any existing Observe credentials. Never upload .env.
+
+## 4. Create the local database
+
+In pgAdmin, connect to your existing local PostgreSQL server. Right-click Databases > Create > Database, enter `library`, and save. Alternatively, run the following in the Query Tool while connected to the postgres maintenance database:
+
+```sql
+CREATE DATABASE library;
+```
+
+Skip creation if library already exists. Your configured user must own the database or have permission to create tables in its public schema. Start your local PostgreSQL service before running the API.
+
+`DATABASE_SYNCHRONIZE=true` creates the books table when the API starts. It does not create the database itself. Use migrations for a production deployment.
+
+The assignment PDF explicitly requests a database set up with docker-compose. This project now uses local PostgreSQL at your request; confirm that setup is acceptable for submission.
+
+## 5. Start the API
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev
 ```
 
-## Deployment
+Keep this terminal running. The API is at http://localhost:3000/books. The root route still returns the original Hello World message; use /books for the assignment. No frontend is required by the assignment.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 6. Try the five endpoints
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Use a second terminal or import [postman.json](./postman.json) into Postman. The collection has `baseUrl` and `bookId` variables; creating a book automatically updates bookId. IDs are database generated, so replace 1 below with the returned ID.
+
+### List books (GET)
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+curl -i http://localhost:3000/books
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+An empty database returns:
 
-## Observability
+```json
+{"success":true,"requestId":"generated-uuid","count":0,"data":[]}
+```
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-This project is already instrumented. To connect it, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
+### Create a book (POST)
 
 ```bash
-$ npx @nestjs/observe link
+curl -i -X POST http://localhost:3000/books \
+  -H 'Content-Type: application/json' \
+  -H 'x-role: librarian' \
+  -H 'x-request-id: my-first-request' \
+  -d '{"title":"  the hobbit  ","genre":"fiction","publishedYear":1937}'
 ```
 
-It writes the app key and secret into `.env` and makes every `nest start` script (`start`, `start:dev`, `start:debug`) load it. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
+Expected: HTTP 201. The saved title is `The Hobbit`. The response has `success`, `requestId`, and `data`. The X-Request-Id header matches `my-first-request`. A single object has no count field.
 
-Or do it by hand: create an application and an API key at [observe.nestjs.com](https://observe.nestjs.com), and set the pair as `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment the app runs in.
+### Read one book (GET)
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+```bash
+curl -i http://localhost:3000/books/1
+```
 
-## Resources
+### Update only one field (PATCH)
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+curl -i -X PATCH http://localhost:3000/books/1 \
+  -H 'Content-Type: application/json' -H 'x-role: librarian' \
+  -d '{"publishedYear":1938}'
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Only the supplied fields change. An unchanged title is allowed. Missing optional fields are allowed; explicit null values are rejected. An empty PATCH leaves an existing book unchanged.
 
-## Support
+### Delete a book (DELETE)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+curl -i -X DELETE http://localhost:3000/books/1 -H 'x-role: librarian'
+```
 
-## Stay in touch
+Returns HTTP 200 with the deleted book in the envelope. Reading that ID afterwards returns 404.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 7. Demonstrate error handling
 
-## License
+| Try this | Expected |
+| --- | --- |
+| POST, PATCH, or DELETE without x-role | 403 Forbidden |
+| x-role: student | 403 Forbidden |
+| Title containing only spaces or one character after trim | 400 Bad Request |
+| genre: fantasy | 400 Bad Request |
+| Year 1449, a future year, or 2000.5 | 400 Bad Request |
+| Year as string "2000" or null | 400 Bad Request |
+| Extra field such as id on create | 400 Bad Request |
+| GET /books/abc | 400 Bad Request |
+| GET/PATCH/DELETE with a missing numeric ID | 404 Not Found |
+| Create the same title twice (including different capitalization) | 409 Duplicate Book |
+| Rename another book to an existing title | 409 Duplicate Book |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Create the same title twice before deleting it to demonstrate:
+
+```json
+{"error":"Duplicate Book","statusCode":409,"timestamp":"ISO date","path":"/books"}
+```
+
+Errors are not wrapped in the success envelope. Requests to book routes still receive X-Request-Id on errors.
+
+## 8. Understand what was created, in learning order
+
+1. **Entity:** [book.entity.ts](./src/books/entities/book.entity.ts) maps a book to PostgreSQL columns: generated integer id, unique title, genre enum, and integer publishedYear. The unique constraint also protects concurrent duplicate inserts.
+2. **DTOs:** [create-book.dto.ts](./src/books/dto/create-book.dto.ts) requires a string title, one of the three genres, and an integer year. [update-book.dto.ts](./src/books/dto/update-book.dto.ts) reuses those rules but makes fields optional for PATCH.
+3. **Service/provider:** [books.service.ts](./src/books/books.service.ts) contains the database operations. Nest injects a Repository<BookEntity>. findAll lists, findOne checks for 404, create saves, update merges supplied fields, and remove deletes. Duplicate titles throw ConflictException("Book already exists"). A PostgreSQL unique violation becomes the same exception.
+4. **Controller:** [books.controller.ts](./src/books/books.controller.ts) connects GET/POST/PATCH/DELETE URLs to service methods. ParseIntPipe converts URL IDs to numbers. Body ValidationPipe rejects missing/invalid/unknown fields before the custom pipes run.
+5. **Pipes:** [title-format.pipe.ts](./src/pipes/title-format.pipe.ts) trims and title-cases words, rejecting titles shorter than two characters after trimming. [published-year-validation.pipe.ts](./src/pipes/published-year-validation.pipe.ts) checks 1450 through the current year. Both skip omitted PATCH fields. The current year is computed at request time.
+6. **Guard:** [librarian.guard.ts](./src/guards/librarian.guard.ts) requires exactly x-role: librarian on writes. GET routes are public. This header rule demonstrates the assignment; it is not a login system.
+7. **Middleware:** [request-id.middleware.ts](./src/middleware/request-id.middleware.ts) reuses x-request-id or generates a UUID, attaches requestId to the request, and sets the response header.
+8. **Interceptor:** [response-envelope.interceptor.ts](./src/common/interceptors/response-envelope.interceptor.ts) wraps successful results and adds count only for arrays. It is attached at controller level.
+9. **Filter:** [duplicate-book.filter.ts](./src/filters/duplicate-book.filter.ts) catches ConflictException on POST and PATCH and produces the exact required error shape.
+10. **Module:** [books.module.ts](./src/books/books.module.ts) registers the entity repository, controller, service, guard, pipes, filter, and interceptor. It applies request ID middleware to book routes through configure().
+11. **Root setup:** [app.module.ts](./src/app.module.ts) loads and validates environment settings, connects TypeORM to PostgreSQL, imports BooksModule, and retains Observe. [main.ts](./src/main.ts) creates the application and starts its HTTP listener.
+
+Nest decorators are labels the framework reads: @Controller declares a route group, @Get/@Post declare endpoints, @Injectable permits dependency injection, and @Module groups related components. Constructor injection supplies a ready-made dependency instead of manually calling new.
+
+## 9. Explain the request lifecycle to your professor
+
+```mermaid
+flowchart TD
+  A[HTTP request] --> B[Request ID middleware]
+  B --> C[Librarian guard on writes]
+  C --> D[Interceptor enters]
+  D --> E[DTO validation and custom pipes]
+  E --> F[Controller]
+  F --> G[Service]
+  G --> H[(PostgreSQL)]
+  H --> I[Success envelope interceptor]
+  I --> J[HTTP response]
+  G -->|Duplicate ConflictException| K[Duplicate book filter]
+  K --> J
+```
+
+Example: POST with `the hobbit` first gets a request ID; the guard checks the librarian role; DTO validation checks field types/genre; pipes normalize the title and check the year; the controller calls the service; the service saves through TypeORM; the interceptor wraps the result. A duplicate exception takes the filter path instead of returning success. Other exceptions use Nest's normal error handling.
+
+## 10. Run checks
+
+```bash
+npm run build
+npm run lint
+npm test -- --runInBand
+npm run test:e2e -- --runInBand
+```
+
+The unit tests check service duplicate handling and missing records. The HTTP suite exercises the real BooksModule controller, service, middleware, guard, pipes, filter, and interceptor with an in-memory repository replacement. It does not prove PostgreSQL persistence. Use the manual CRUD requests against your local PostgreSQL server to verify the real database; restart the API and GET the created book to confirm persistence.
+
+## 11. Upload to your repository
+
+The intended remote is https://github.com/akhil3969/librarybooks-api.git. Verify it first:
+
+```bash
+git remote -v
+git status
+```
+
+Confirm .env and node_modules are not staged. Then:
+
+```bash
+git add .
+git commit -m "Complete library books API project"
+git push -u origin HEAD
+```
+
+This pushes the current branch. No need to overwrite or copy the professor's repository. Submit your own repository link and complete project folder as your assignment requests.
+
+## Troubleshooting
+
+- Database connection refused: start your local PostgreSQL service and check .env DATABASE_PORT (usually 5432).
+- Password failure: use your local PostgreSQL user password. Changing .env alone does not reset a database password.
+- Port 3000 in use: choose another PORT in .env and update the request URLs/Postman baseUrl.
+- 403 on write: include x-role: librarian exactly.
+- 409 on create: use a different title or update the existing book.
+- Cannot find module: run npm install from this folder.
+
+Documentation: [Nest TypeORM](https://docs.nestjs.com/data/typeorm.md), [Nest validation](https://docs.nestjs.com/application/validation.md).

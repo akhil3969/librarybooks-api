@@ -1,18 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { BooksController } from './books.controller';
-
+import { BooksService } from './books.service';
 describe('BooksController', () => {
-  let controller: BooksController;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [BooksController],
-    }).compile();
-
-    controller = module.get<BooksController>(BooksController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('delegates reads to the service', async () => {
+    const findAll = jest.fn().mockResolvedValue([]);
+    const controller = new BooksController({
+      findAll,
+    } as unknown as BooksService);
+    await controller.findAll();
+    expect(findAll).toHaveBeenCalledTimes(1);
   });
 });
